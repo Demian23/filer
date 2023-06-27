@@ -1,8 +1,7 @@
 #ifndef __IStreamTransformer_h__
 #define __IStreamTransformer_h__
 
-#include <istream>
-#include <ostream>
+#include <iosfwd>
 
 class IStreamTransformer{
 public:
