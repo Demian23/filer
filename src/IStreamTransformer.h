@@ -8,6 +8,7 @@ public:
     virtual const char* type() = 0;
     virtual void transform(std::istream& in, std::ostream& out) = 0;
     virtual void retransform(std::istream& in, std::ostream& out) = 0;
+    virtual void setOptions(const std::string& options) = 0;
     virtual ~IStreamTransformer(){}
     //can add possibility of configuration using vargs
 };

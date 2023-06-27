@@ -12,7 +12,8 @@ static constexpr const char*const error_msgs[] = {"Not correct config file",
     "Wrong input file", "No plugin able to load", "No load function in plugin",
     "Wrong direction(to/from)"};
 static constexpr const char*const config_params[] = {"plugin_directory", 
-    "autorun", "autorun_plugins", "input_file", "output_file", "direction"};
+    "autorun", "autorun_plugins", "input_file", "output_file", "direction", 
+    "options"};
 
 namespace fs = std::__fs::filesystem;
 std::string Filer::plgPath(const std::string& plg, const std::string& plg_dir)
@@ -75,6 +76,9 @@ void Filer::parseConfigFile(const char* file, __configuration& config)
                     else 
                         throw error_msgs[cwdirect];
                     break;
+                case 6:
+                    config.emplace(param, value);
+                    break;
                 default:
                     throw error_msgs[cnosuchpar];
             }
@@ -92,6 +96,7 @@ public:
 private:
     std::ifstream in;
     std::ofstream out;
+    std::string options;
     void* plg_handle;
     IStreamTransformer* transformation;
     bool transform;
@@ -132,6 +137,7 @@ AutoFiler::AutoFiler(const __configuration& config) : Filer(), plg_handle(0),
             case 3: in.open(it->second);break;
             case 4: out.open(it->second);break;
             case 5: it->second == "to" ? transform : transform = false;break;
+            case 6: options = it->second;
             default:break;
         }
     }
@@ -155,6 +161,7 @@ void AutoFiler::getTransformation(const std::string& plg_way)
 
 void AutoFiler::process()
 {
+    transformation->setOptions(options);
     if(transform)
         transformation->transform(in, out);
     else 
