@@ -5,13 +5,14 @@
 #include "IStreamTransformer.h"
 
 enum error_codes{cconfig, cplgdir, cvalautorun, cnosuchplg, cnosuchpar, cwrin,
-    cnapll, cnlf};
+    cnapll, cnlf, cwdirect};
 static constexpr const char*const error_msgs[] = {"Not correct config file", 
     "Not correct plugins directory", "Not correct autorun value", 
     "No such plugin available for autorun", "Wrong config parameter", 
-    "Wrong input file", "No plugin able to load", "No load function in plugin"};
+    "Wrong input file", "No plugin able to load", "No load function in plugin",
+    "Wrong direction(to/from)"};
 static constexpr const char*const config_params[] = {"plugin_directory", 
-    "autorun", "autorun_plugins", "input_file", "output_file"};
+    "autorun", "autorun_plugins", "input_file", "output_file", "direction"};
 
 namespace fs = std::__fs::filesystem;
 std::string Filer::plgPath(const std::string& plg, const std::string& plg_dir)
@@ -53,8 +54,6 @@ void Filer::parseConfigFile(const char* file, __configuration& config)
                         throw error_msgs[cvalautorun];
                     break;
                 case 2:
-                    //check wether plugin exists
-                    //if not throw exception
                     plg_path = plgPath(value, plg_dir);
                     if(!plg_path.empty())
                         config.emplace(param, plg_path);
@@ -70,6 +69,12 @@ void Filer::parseConfigFile(const char* file, __configuration& config)
                 case 4:
                     config.emplace(param, value);
                     break;
+                case 5:
+                    if(value == "from" || value == "to")
+                        config.emplace(param, value);
+                    else 
+                        throw error_msgs[cwdirect];
+                    break;
                 default:
                     throw error_msgs[cnosuchpar];
             }
@@ -83,16 +88,22 @@ public:
     void process()override;
     bool ready()override{return true;}
     AutoFiler(const __configuration& config);
-    virtual ~AutoFiler(){if(plg_handle)dlclose(plg_handle); 
-        if(transformation) delete transformation;}
+    virtual ~AutoFiler();
 private:
     std::ifstream in;
     std::ofstream out;
     void* plg_handle;
     IStreamTransformer* transformation;
+    bool transform;
     AutoFiler(const AutoFiler&);     
     void getTransformation(const std::string& plg_way);
 };
+
+AutoFiler::~AutoFiler()
+{
+    if(transformation) delete transformation;
+    if(plg_handle) dlclose(plg_handle);
+}
 
 Filer* Filer::makeInstanceFromArgs(int argc, char **argv)
 {
@@ -108,7 +119,8 @@ Filer* Filer::makeInstanceFromArgs(int argc, char **argv)
     else return 0;
 }
 
-AutoFiler::AutoFiler(const __configuration& config) : Filer(), plg_handle(0), transformation(0)
+AutoFiler::AutoFiler(const __configuration& config) : Filer(), plg_handle(0), 
+    transformation(0), transform(true)
 {
     for(__configuration::const_iterator it = config.begin(); 
         it != config.end(); it++)
@@ -117,8 +129,9 @@ AutoFiler::AutoFiler(const __configuration& config) : Filer(), plg_handle(0), tr
             config_params + sizeof(config_params), it->first);
         switch (pointer_to_param - config_params) {
             case 2: getTransformation(it->second); break;
-            case 3: in.open(it->second);
-            case 4: out.open(it->second);
+            case 3: in.open(it->second);break;
+            case 4: out.open(it->second);break;
+            case 5: it->second == "to" ? transform : transform = false;break;
             default:break;
         }
     }
@@ -142,6 +155,8 @@ void AutoFiler::getTransformation(const std::string& plg_way)
 
 void AutoFiler::process()
 {
-    // path direction of transformation
-    transformation->transform(in, out);
+    if(transform)
+        transformation->transform(in, out);
+    else 
+        transformation->retransform(in, out);
 }

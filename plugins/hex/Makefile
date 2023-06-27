@@ -1,26 +1,26 @@
 CPPC=clang++
 CPPFLAGS=-g -Wall -Werror -Wshadow -Wconversion -Wpedantic -std=c++14
 SRC=src
-OBJ=obj
+OBJ=obj/
 OBJS=$(patsubst $(SRC)/%.cpp, $(OBJ)/%.o, $(SRCS))
 SRCS=$(wildcard $(SRC)/*.cpp)
-BINDIR=bin
-BIN=$(BINDIR)/filer
 
-all:$(OBJ) $(BINDIR) $(BIN)
+BINDIR=../bin
+BIN=$(BINDIR)/hex.so
+
+all:$(OBJ) $(BIN)
+
 release: CPPFLAGS=-Wall -Werror -Wshadow -Wconversion -Wpedantic -std=c++14 -O3
 release: all
-temp: $(OBJ) $(OBJS)
 
-$(BIN): $(OBJS_FILER) $(OBJS)
-	$(CPPC) $(CPPFLAGS) $^ $(SRC)/main/main.cpp -o $@ 
+$(BIN): $(OBJS)
+	$(CPPC) -shared $(CPPFLAGS) $^ -o $@ 
+
 $(OBJ)/%.o: $(SRC)/%.cpp
-	$(CPPC) $(CPPFLAGS) -c $< -o $@
-
+	$(CPPC) -fPIC $(CPPFLAGS) -c $< -o $@
 clean:
-	$(RM) -r $(OBJ)/* $(BIN) $(BIN).dSYM
-
+	$(RM) -r $(OBJ)/* $(BIN)
 $(OBJ):
 	mkdir -p $@
-$(BINDIR):
+$(POBJ):
 	mkdir -p $@
