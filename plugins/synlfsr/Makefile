@@ -9,6 +9,8 @@ BINDIR=../bin
 BIN=$(BINDIR)/synlfsr.so
 
 all:$(OBJ) $(BIN)
+tests: $(OBJS)
+	$(MAKE) -C test
 
 release: CPPFLAGS=-Wall -Werror -Wshadow -Wconversion -Wpedantic -std=c++14 -O3
 release: all
