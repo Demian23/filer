@@ -1,6 +1,5 @@
 #include <cstdio>
 #include <iostream>
-#include <sstream>
 #include "hex.h"
 
 Hex* loadhex(){return new Hex;}
@@ -31,10 +30,10 @@ void Hex::retransform(std::istream &input, std::ostream &output)
 }
 void Hex::setOptions(const std::string& options)
 {
-    std::stringstream stream(options);
-    std::string param;
-    while(std::getline(stream, param, ' ')){
-        if(param == "spaces")
+    std::string::size_type start = 0, end = 0, i = 0;
+    while((start = options.find_first_not_of(' ', end)) != std::string::npos){
+        end = options.find(' ', start);    
+        if(options.substr(start, end-start) == "spaces")
             spaces_ = true;
     }
 }
