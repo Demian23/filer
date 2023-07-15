@@ -172,7 +172,7 @@ void Filer::parseConfigFile(const char* file, Configuration& config)
 }
 
 
-Filer* Filer::makeInstanceFromArgs(int argc, char **argv)
+std::unique_ptr<Filer> Filer::makeInstanceFromArgs(int argc, char **argv)
 {
     Configuration config;
     for(int i = 1; i < argc; i+=2){
@@ -182,7 +182,7 @@ Filer* Filer::makeInstanceFromArgs(int argc, char **argv)
         else 
             verifyConfigParam(temp, argv[i+1], config);
     }    
-    return new Filer(std::move(config));
+    return std::unique_ptr<Filer>(new Filer(std::move(config)));
 }
 
 bool Filer::autorun()const

@@ -11,6 +11,8 @@ public:
     virtual void setOptions(const std::string& options) = 0;
     virtual ~IStreamTransformer(){}
     //can add possibility of configuration using vargs
+    //IStreamTransformer(const IStreamTransformer&) = delete;
+    IStreamTransformer& operator=(const IStreamTransformer&) = delete;
 };
 
 typedef IStreamTransformer*(*loader)();

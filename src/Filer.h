@@ -14,11 +14,11 @@ enum Params:char;
 class Filer final{
 public:
     using Configuration = std::map<Params, std::string>;
-    static Filer* makeInstanceFromArgs(int argc, char** argv);
+    static std::unique_ptr<Filer> makeInstanceFromArgs(int argc, char** argv);
     void run();
+    bool autorun()const;
     void runTransformation();
     std::vector<std::__fs::filesystem::path> getAllAvailablePlugins()const;
-    bool autorun()const;
     std::string configStr()const;
     inline void setConfigParam(const std::string& param, const std::string& value)
     {verifyConfigParam(param, value, config_);}
