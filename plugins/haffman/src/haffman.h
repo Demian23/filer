@@ -5,6 +5,7 @@
 #include <cstdint>
 #include <string>
 #include <unordered_map>
+#include <map>
 #include <memory>
 #include <vector>
 
@@ -42,11 +43,14 @@ public:
     void setOptions(const std::string& options)override;
 
     using ConvertTable = std::unordered_map<uint8_t, std::vector<bool>>;
+    using RotatedTable = std::map<std::vector<bool>, uint8_t>;
     void countFrequency(std::istream& input, HaffmanHeap& heap);
     void fillConvertTable(std::unique_ptr<Node> tree);
     void traverse(std::unique_ptr<Node>& ptr, std::string accum); 
     std::string substitution(uint8_t byte)const;
-
+    void writeTable(std::ostream& output);
+    void restoreTable(std::istream& input);
+    RotatedTable rotateTable()const; 
 private:
     ConvertTable table;
 };

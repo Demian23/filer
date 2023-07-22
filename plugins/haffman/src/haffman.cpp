@@ -1,4 +1,5 @@
 #include <algorithm>
+#include <ios>
 #include <iostream>
 #include "haffman.h"
 #include "bitwriter.h"
@@ -76,7 +77,6 @@ std::string HaffmanCompression::substitution(uint8_t byte)const
             res += bit ? '1' : '0';
         return res;
     }else return std::string();
-
 }
 
 void HaffmanCompression::transform(std::istream& input, std::ostream& output)
@@ -90,14 +90,78 @@ void HaffmanCompression::transform(std::istream& input, std::ostream& output)
     input.seekg(0);
 
     uint8_t byte;
+    writeTable(output);
     BitWriter writer(output);
     while(input.read((char*)&byte, 1))
         writer.write(table[byte]);
 }
 
+void HaffmanCompression::writeTable(std::ostream& output)
+{
+    for(const auto& el : table){
+        output.write((char*)&el.first, 1);
+        output << substitution(el.first) << '\n';
+    }
+}
+
 void HaffmanCompression::retransform(std::istream& input, std::ostream& output)
 {
+    restoreTable(input);
+    BitReader reader(input, rotateTable());
+    char buffer[512] = {};
+    std::streamsize write = 0;
+    while((write = static_cast<std::streamsize>(reader.read(buffer, 512))))
+        output.write(buffer, write);
+}
 
+HaffmanCompression::RotatedTable HaffmanCompression::rotateTable()const
+{
+    RotatedTable result;
+    for(const auto& el : table)
+        result[el.second] = el.first;
+    return result;
+}
+
+void HaffmanCompression::restoreTable(std::istream& input)
+{
+    enum tableParseStages{readByte, readEncoding, readOrEnd, Error};
+    char byte, tempByte = 0;
+    std::vector<bool> substitution;
+    uint8_t currentStage = readByte;
+    bool done = false;
+    for(;!done;)
+        switch (currentStage) {
+            case readByte: input.read(&byte, 1); currentStage = readEncoding; break;
+            case readEncoding: 
+               tempByte = static_cast<char>(input.peek());
+               if(tempByte == '0' || tempByte == '1'){
+                   substitution.push_back(tempByte == '1' ? true : false);
+                   input.get();
+                   currentStage = readOrEnd;
+               } else currentStage = Error;
+               break;
+            case readOrEnd:
+               tempByte = static_cast<char>(input.peek());
+               if(tempByte == '\n'){
+                   input.get();
+                   table[static_cast<uint8_t>(byte)] = substitution;
+                   substitution.clear();
+                   currentStage = readByte;
+               } else 
+                   if(tempByte == '0' || tempByte == '1'){
+                       substitution.push_back(tempByte == '1' ? true : false);
+                       input.get();
+                       currentStage = readOrEnd;
+                   } else currentStage = Error;
+               break;
+            case Error:
+                while(substitution.size()){
+                    input.putback(substitution.back() ? '1' : '0');
+                    substitution.pop_back();
+                }
+                input.putback(byte);
+                done = true;
+        }
 }
 
 const char* HaffmanCompression::type()
@@ -111,5 +175,4 @@ void HaffmanCompression::setOptions(const std::string& options)
 }
 
 };
-
 
