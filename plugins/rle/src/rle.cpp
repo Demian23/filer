@@ -4,16 +4,15 @@
 
 const char* Rle::type(){return "rle";}
 
-Rle* loadhaffman(){return new Rle;}
+Rle* loadrle(){return new Rle;}
 
 class FrequencyCountingStream{
 public:
     FrequencyCountingStream(std::ostream& out) : out_(out){}
     void write(char byte);
     ~FrequencyCountingStream();
-
+    enum{maxByteSeq = 0x7F, nonRepeatBit = 0x80};
 private:
-    enum{maxByteSeq = 0x7F};
     std::ostream& out_;
     char lastByte{0};
     uint8_t repeatedSeqLen{0};
@@ -26,7 +25,7 @@ private:
         repeatedSeqLen = 0;
     }
     inline void writeNonRepeatedBuffer(){
-        uint8_t nonRepeatedSize = 0x80 + bufferPosition;
+        uint8_t nonRepeatedSize = nonRepeatBit + bufferPosition;
         out_.write((char*)&nonRepeatedSize, 1);
         out_.write(nonRepeatedBuffer, bufferPosition);
         bufferPosition = 0;
@@ -62,6 +61,20 @@ void Rle::transform(std::istream& input, std::ostream& output)
     while(input.read(&readByte, 1))
         out.write(readByte);
 }
-void Rle::retransform(std::istream& input, std::ostream& output){}
+void Rle::retransform(std::istream& input, std::ostream& output)
+{
+    char readBuffer[FrequencyCountingStream::maxByteSeq]{};
+    char frequencyByte;
+    while(input.read(&frequencyByte, 1)){
+        if(frequencyByte & FrequencyCountingStream::nonRepeatBit){
+            input.read(readBuffer, 
+                frequencyByte -= FrequencyCountingStream::nonRepeatBit);
+            output.write(readBuffer, frequencyByte);
+        } else {
+            input.read(readBuffer, 1);
+            while(frequencyByte--)output.write(readBuffer, 1);
+        }
+    }
+}
     
 void Rle::setOptions(const std::string& options){}

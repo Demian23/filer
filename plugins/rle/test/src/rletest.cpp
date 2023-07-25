@@ -4,7 +4,7 @@
 #include <iostream>
 #include "../../src/rle.h"
 
-TEST(RleSuit, transformOrdinary)
+TEST(RleTransformSuit, Ordinary)
 {
     std::stringstream input{"zzzzggqs"}, output;
     Rle tr;
@@ -12,7 +12,7 @@ TEST(RleSuit, transformOrdinary)
     ASSERT_EQ("\x04z\x02g\x82qs", output.str());
     ASSERT_TRUE(output.str().size() == 7);
 }
-TEST(RleSuit, transformLowEdge)
+TEST(RleTransformSuit, LowEdge)
 {
     std::stringstream input{"z"}, output;
     Rle tr;
@@ -20,13 +20,40 @@ TEST(RleSuit, transformLowEdge)
     ASSERT_EQ("\x81z", output.str());
     ASSERT_TRUE(output.str().size() == 2);
 }
-TEST(RleSuit, transformHighEdge)
+TEST(RleTransformSuit, HighEdge)
 {
-    std::stringstream input{"zzzzzzzz"}, output;
+    std::stringstream input{"zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz"
+     "zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz"
+     "zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz"
+     "zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz"}, output;
     Rle tr;
     ASSERT_NO_THROW(tr.transform(input, output));
-    ASSERT_EQ("\x08z", output.str());
-    ASSERT_TRUE(output.str().size() == 2);
+    ASSERT_EQ("\x7Fz\x51z", output.str());
+    ASSERT_TRUE(output.str().size() == 4);
+}
+
+TEST(RleRetransformSuit, Ordinary)
+{
+    std::stringstream input{"\x04z\x02g\x82qs"}, output;
+    Rle tr;
+    ASSERT_NO_THROW(tr.retransform(input, output));
+    ASSERT_EQ("zzzzggqs", output.str());
+}
+
+TEST(RleRetransformSuit, LowEdge)
+{
+    std::stringstream input{"\x81z"}, output;
+    Rle tr;
+    ASSERT_NO_THROW(tr.retransform(input, output));
+    ASSERT_EQ("z", output.str());
+}
+
+TEST(RleRetransformSuit, HighEdge)
+{
+    std::stringstream input{"\x7Fz\x51z"}, output;
+    Rle tr;
+    ASSERT_NO_THROW(tr.retransform(input, output));
+    ASSERT_EQ(output.str().size(), 208);
 }
 
 int main(int argc, char** argv)

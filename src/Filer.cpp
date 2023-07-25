@@ -133,14 +133,14 @@ void directionH(const std::string& val, Filer::Configuration& config)
 
 static std::map<const std::string, HandlerF> configurationParamsHandlers = {
     {configurationParams[PlgDir], plugDirH},
-    {configurationParams[PlgExt], [](const std::string&val, Filer::Configuration& config){config[Options]=val;}},
+    {configurationParams[PlgExt], [](const std::string&val, Filer::Configuration& config){config[PlgExt]=val;}},
     {configurationParams[Autorun], autorunH},
     {configurationParams[Plugins], pluginsH}, 
     {configurationParams[InFile], infileH},
     {configurationParams[OutFile], outfileH}, 
     {configurationParams[Direction], directionH}, 
     {configurationParams[Options], [](const std::string&val, Filer::Configuration& config){config[Options]=val;}},
-    {configurationParams[UI],[](const std::string&val, Filer::Configuration& config){config[Options]=val;}}, 
+    {configurationParams[UI],[](const std::string&val, Filer::Configuration& config){config[UI]=val;}}, 
 };
 
 
