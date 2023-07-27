@@ -30,7 +30,7 @@ std::string TextUI::quitCmd(const std::string&){endFlag = true;return "Goodbye\n
 std::string TextUI::showCmd(const std::string&){return filer_->configStr();}
 std::string TextUI::pluginsCmd(const std::string&)
 {
-    using path = std::__fs::filesystem::path;
+    using path = std::filesystem::path;
     std::string res;    
     const auto plugins = filer_->getAllAvailablePlugins();
     std::for_each(plugins.begin(), plugins.end(), 

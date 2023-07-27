@@ -6,7 +6,7 @@
 #include "Filer.h"
 #include "TextUI.h"
 
-namespace fs = std::__fs::filesystem;
+namespace fs = std::filesystem;
 enum ErrorCodes{WrConf, WrPlgDir, WrAutorun, NoPlg, NoParam, NoFile,
     CantLoad, NoLoader, WrongDirection, NoUIPlg, DirExtFirst, NoRegFile, 
     CantOpen, NoPlugins, OneStream, NotSet};

@@ -1,5 +1,5 @@
 CPPC=clang++
-CPPFLAGS=-g -Wall -Werror -Wshadow -Wconversion -Wpedantic -std=c++14
+CPPFLAGS=-g -Wall -Werror -Wshadow -Wconversion -Wpedantic -std=c++17
 SRC=src
 OBJ=obj
 OBJS=$(patsubst $(SRC)/%.cpp, $(OBJ)/%.o, $(SRCS))
@@ -8,7 +8,7 @@ BINDIR=bin
 BIN=$(BINDIR)/filer
 
 all:$(OBJ) $(BINDIR) $(BIN)
-release: CPPFLAGS=-Wall -Werror -Wshadow -Wconversion -Wpedantic -std=c++14 -O3
+release: CPPFLAGS=-Wall -Werror -Wshadow -Wconversion -Wpedantic -std=c++17 -O3
 release: all
 temp: $(OBJ) $(OBJS)
 
