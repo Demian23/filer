@@ -237,14 +237,17 @@ void Filer::runTransformation()
                 stackOut.open(config_[OutFile]);
                 if(!stackIn.good()) throw new ErrorMsg(errorsToThrow[CantOpen] + ": " + config_[InFile]);
                 if(!stackOut.good()) throw new ErrorMsg(errorsToThrow[CantOpen] + ": " + config_[OutFile]);
-                in = &stackIn; out = &stackOut;
+                in = ManagedPtr<std::istream>(&stackIn, 
+                        std::make_unique<NoDel>());
+                out = ManagedPtr<std::ostream>(&stackOut, 
+                        std::make_unique<NoDel>());
             } else
                throw new ErrorMsg(
                     (inIt == config_.end() ? configurationParams[InFile] : "") + " " +
                     (outIt == config_.end() ? configurationParams[OutFile] : "") + " " +
                     errorsToThrow[NotSet]);
         }else{
-            if(in)
+            if(!out)
                 throw new ErrorMsg(errorsToThrow[OneStream] + ": in" );
             else 
                 throw new ErrorMsg(errorsToThrow[OneStream] + ": out" );
@@ -258,7 +261,7 @@ void Filer::runTransformation()
         bool direction = it != config_.end() ? 
             (config_[Direction] == "to" ? true : false) : true;
         transformWithSequence(seq, direction);
-        in = 0; out = 0;
+        in.free(); out.free();
     }else
         throw new ErrorMsg(errorsToThrow[NoPlugins]);
 }

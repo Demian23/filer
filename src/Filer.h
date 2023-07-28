@@ -9,6 +9,7 @@
 
 #include "IStreamTransformer.h"
 #include "IUserInterface.h"
+#include "ManagedPtr.h"
 
 enum Params:char;
 class Filer final{
@@ -48,8 +49,8 @@ private:
     Configuration config_;
     std::map<const std::string, Transformation> transformations;
     std::map<const std::string, UsrInterface> uis;
-    std::istream* in{0};
-    std::ostream* out{0};
+    ManagedPtr<std::istream> in;
+    ManagedPtr<std::ostream> out;
 };
 
 #endif
