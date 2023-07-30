@@ -1,26 +1,36 @@
 CPPC=clang++
-CPPFLAGS=-g -Wall -Werror -Wshadow -Wconversion -Wpedantic -std=c++14
+COMMON_FLAGS=-Wall -Werror -Wshadow -Wconversion -Wpedantic -std=c++17
+DEBUG_FLAGS=-g
+OPTIMISATION_FLAGS=-O3
+SPECIFIC_FLAGS=$(DEBUG_FLAG)
+
 SRC=src
-OBJ=obj/
+OBJ=obj
 OBJS=$(patsubst $(SRC)/%.cpp, $(OBJ)/%.o, $(SRCS))
 SRCS=$(wildcard $(SRC)/*.cpp)
-
 BINDIR=../bin
 BIN=$(BINDIR)/hex.so
+# test dir -> T_D
+T_D=test
 
-all:$(OBJ) $(BIN)
-
-release: CPPFLAGS=-Wall -Werror -Wshadow -Wconversion -Wpedantic -std=c++14 -O3
+all:$(OBJ) $(BINDIR) $(BIN)
+release: SPECIFIC_FLAGS=$(OPTIMISATION_FLAGS)
 release: all
 
-$(BIN): $(OBJS)
-	$(CPPC) -shared $(CPPFLAGS) $^ -o $@ 
+# o -> just objects files
+o: $(OBJS)
 
+test: o
+	$(MAKE) -C $(T_D)
+
+$(BIN): $(OBJS)
+	$(CPPC) $(COMMON_FLAGS) $(SPECIFIC_FLAGS) -shared $^ $(MAIN_PATH) -o $@ 
 $(OBJ)/%.o: $(SRC)/%.cpp
-	$(CPPC) -fPIC $(CPPFLAGS) -c $< -o $@
+	$(CPPC) $(COMMON_FLAGS) $(SPECIFIC_FLAGS) -fPIC -c $< -o $@
+
 clean:
-	$(RM) -r $(OBJ)/* $(BIN)
+	$(RM) -r $(OBJ)/* $(BIN) $(BIN).dSYM
+	$(MAKE) clean -C $(T_D)
+
 $(OBJ):
-	mkdir -p $@
-$(POBJ):
 	mkdir -p $@

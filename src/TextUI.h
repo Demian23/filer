@@ -11,7 +11,7 @@ public:
     using Commands = std::map<std::string, CommandHandler>; 
     TextUI(Filer* filer); 
     void runUI()override;
-    const char* type()override{return "text";}
+    inline const char* type()override{return "text";}
     inline void setEnd(){endFlag = true;};
     std::string helpCmd(const std::string&);
     std::string quitCmd(const std::string&);

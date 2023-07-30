@@ -8,7 +8,7 @@ SRCS=$(wildcard $(SRC)/*.cpp)
 OBJS=$(patsubst $(SRC)/%.cpp, $(OBJ)/%.o, $(SRCS))
 OBJS_TESTED=$(wildcard $(OBJ_TESTED)/*.o)
 BINDIR=bin
-BIN=$(BINDIR)/rleTest
+BIN=$(BINDIR)/hexTest
 LIBS=-lgtest
 
 all:clean $(OBJ) $(BINDIR) $(BIN) run

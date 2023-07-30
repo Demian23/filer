@@ -1,22 +1,32 @@
 #include <gtest/gtest.h>
 #include <iostream>
-#include "../../src/IFiler.h"
+#include <memory>
+#include "../../src/IThrowable.h"
+#include "../../src/Filer.h"
 
-TEST(FilerPreambuleSuit, plgPathMethod){
-    std::string path;
-    ASSERT_NO_THROW(path = IFiler::plgPath("hex", "./bin/testdir"));
-    std::clog << "Absolute path to plugin: " << path << std::endl; 
-}
-
-TEST(FilerPreambuleSuit, filerCreation){
-    const char* temp[] = {0, "config", "./bin/testdir/config"};
-    IFiler* filer = 0;
-    try{
-        filer = IFiler::makeInstanceFromArgs(3, const_cast<char**>(temp));
-    } catch (const char* msg){
-        std::cerr << msg << std::endl;
+class FilerTest : public ::testing::Test{
+protected:
+    const char* Argv[5]{0, "PluginDirectory", 
+    "../plugins/bin", "PluginsExtension", ".so"};
+    std::unique_ptr<Filer> filer;
+    void SetUp()override
+    {
+        ASSERT_NO_THROW(
+            try{
+                filer = Filer::makeInstanceFromArgs(5, Argv);
+            } catch (IThrowable* e){
+                std::cerr << e->errorDescription() << '\n';
+                delete e;
+            }
+        );
+        ASSERT_NE(filer, nullptr);
     }
-    EXPECT_TRUE(filer != 0);
+};
+
+TEST_F(FilerTest, setConfigParamsManually)
+{
+    ASSERT_THROW(filer->setConfigParam("Autorun", "Hi"), IThrowable*);
+    ASSERT_NO_THROW(filer->setConfigParam("Autorun", "true"));
 }
 
 int main(int argc, char** argv)

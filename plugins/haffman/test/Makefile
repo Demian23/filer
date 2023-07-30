@@ -1,34 +1,28 @@
 CPPC=clang++
-CPPFLAGS=-g -Wall -Werror -Wshadow -Wconversion -Wpedantic -std=c++14
-SAN_ADDR=-fsanitize=address 
-SAN_MEM=-fsanitize=memory
+COMMON_FLAGS=-Wall -Werror -Wshadow -Wconversion -Wpedantic -std=c++17 -g
+ADDRSAN=-fsanitize=address
 SRC=src
 OBJ=obj
-OBJ_HAFFMAN=../obj/
-
-OBJS=$(patsubst $(SRC)/%.cpp, $(OBJ)/%.o, $(SRCS))
-OBJS_HAFFMAN=$(wildcard $(OBJ_HAFFMAN)/*.o)
-
+OBJ_TESTED=../obj/
 SRCS=$(wildcard $(SRC)/*.cpp)
+OBJS=$(patsubst $(SRC)/%.cpp, $(OBJ)/%.o, $(SRCS))
+OBJS_TESTED=$(wildcard $(OBJ_TESTED)/*.o)
 BINDIR=bin
-BIN=$(BINDIR)/haffmantest
-LIBTEST=-lgtest
+BIN=$(BINDIR)/base64Test
+LIBS=-lgtest
 
 all:clean $(OBJ) $(BINDIR) $(BIN) run
-
-addr: SANITIZE=$(SAN_ADDR)
-addr: all
-mem: SANITIZE=$(SAN_MEM)
-mem: all
+addr:SPECIFIC_FLAGS=$(ADDRSAN)
+addr:all
 
 run: 
 	./$(BIN)
 
-$(BIN): $(OBJS_HAFFMAN) $(OBJS)
-	$(CPPC) $(CPPFLAGS) $(SANITIZE) $(LIBTEST) $^ -o $@ 
+$(BIN): $(OBJS_TESTED) $(OBJS)
+	$(CPPC) $(COMMON_FLAGS) $(SPECIFIC_FLAGS) $(LIBS) $^ -o $@ 
 
 $(OBJ)/%.o: $(SRC)/%.cpp
-	$(CPPC) $(CPPFLAGS) -c $< -o $@
+	$(CPPC) $(COMMON_FLAGS) $(SPECIFIC_FLAGS) -c $< -o $@
 
 clean:
 	$(RM) -r $(OBJ)/* $(BIN) $(BIN).dSYM

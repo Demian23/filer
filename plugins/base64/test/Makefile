@@ -8,7 +8,7 @@ SRCS=$(wildcard $(SRC)/*.cpp)
 OBJS=$(patsubst $(SRC)/%.cpp, $(OBJ)/%.o, $(SRCS))
 OBJS_TESTED=$(wildcard $(OBJ_TESTED)/*.o)
 BINDIR=bin
-BIN=$(BINDIR)/rleTest
+BIN=$(BINDIR)/base64Test
 LIBS=-lgtest
 
 all:clean $(OBJ) $(BINDIR) $(BIN) run
@@ -29,6 +29,3 @@ clean:
 
 $(OBJ):
 	mkdir -p $@
-$(BINDIR):
-	mkdir -p $@
-

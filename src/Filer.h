@@ -16,7 +16,7 @@ class Filer final{
 public:
     using Configuration = std::map<Params, std::string>;
     using Path = std::filesystem::path;
-    static std::unique_ptr<Filer> makeInstanceFromArgs(int argc, char** argv);
+    static std::unique_ptr<Filer> makeInstanceFromArgs(int argc, const char** argv);
 
     void run();
     bool autorun()const;
@@ -39,7 +39,7 @@ private:
     Filer& operator=(const Filer&) = delete;
     Filer(const Filer&) = delete;
 
-    Filer(Configuration&& config) : config_(config){}
+    Filer(Configuration&& config) : config_(std::move(config)){}
     Filer(Configuration& config) : config_(config){}
 
     void loadPlugin(const std::string& plgName, const std::string& loadfName);

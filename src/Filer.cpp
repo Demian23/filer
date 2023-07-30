@@ -98,7 +98,7 @@ void pluginsH(const std::string& val, Filer::Configuration& config)
                 config[Plugins] += plgAbsolutePath + configPluginsDelimeter;
             else 
                 throw new ErrorMsg(errorsToThrow[ErrorCodes::NoPlg] + ": " 
-                    + val);
+                    + val.substr(start, end-start));
         }
     } else 
         throw new ErrorMsg(errorsToThrow[ErrorCodes::DirExtFirst]); 
@@ -172,7 +172,7 @@ void Filer::parseConfigFile(const char* file, Configuration& config)
 }
 
 
-std::unique_ptr<Filer> Filer::makeInstanceFromArgs(int argc, char **argv)
+std::unique_ptr<Filer> Filer::makeInstanceFromArgs(int argc, const char** argv)
 {
     Configuration config;
     for(int i = 1; i < argc; i+=2){
