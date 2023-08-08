@@ -1,0 +1,4 @@
+BINDIR=../../bin/plgbin/
+COMMON_FLAGS+=-fPIC
+MAIN_PATH+=-shared
+-include ../../MakeCommon

@@ -1,0 +1,8 @@
+BINDIR=bin/
+BIN=$(BINDIR)/filerTest
+MAIN_PATH+=-lgtest
+OBJS+=$(wildcard ../obj/*)
+TEST=yes
+-include ../MakeCommon
+run:
+	./$(BIN)

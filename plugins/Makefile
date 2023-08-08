@@ -1,24 +1,26 @@
-all:
-	$(MAKE) release -C base64
-	$(MAKE) release -C hex 
-	$(MAKE) release -C rle
-	$(MAKE) release -C synlfsr
-	$(MAKE) release -C haffman
-debug:
-	$(MAKE) -C base64
-	$(MAKE) -C hex 
-	$(MAKE) -C rle
-	$(MAKE) -C synlfsr
-	$(MAKE) -C haffman
-test:
-	$(MAKE) test -C base64 
-	$(MAKE) test -C hex 
-	$(MAKE) test -C rle
-	$(MAKE) test -C synlfsr
-	$(MAKE) test -C haffman
-clean:
-	$(MAKE) clean -C base64
-	$(MAKE) clean -C hex 
-	$(MAKE) clean -C rle
-	$(MAKE) clean -C synlfsr
-	$(MAKE) clean -C haffman
+PLUGINSDIRS=$(shell ls -d */)
+
+define MAKERELEASE
+$(MAKE) release -C $(1);
+endef
+
+define MAKEDEBUG
+$(MAKE) -C $(1);
+endef
+
+define MAKETEST 
+$(MAKE) t -C $(1);
+endef
+
+define MAKECLEAN
+$(MAKE) clean -C $(1);
+endef
+
+all: $(PLUGINSDIRS)
+	$(foreach plugin, $^, $(call  MAKERELEASE, $(plugin)))
+debug: $(PLUGINSDIRS)
+	$(foreach plugin, $^, $(call  MAKEDEBUG, $(plugin)))
+t: $(PLUGINSDIRS)
+	$(foreach plugin, $^, $(call  MAKETEST, $(plugin)))
+clean:$(PLUGINSDIRS)
+	$(foreach plugin, $^, $(call  MAKECLEAN, $(plugin)))

@@ -1,0 +1,45 @@
+CPPC=clang++
+COMMON_FLAGS+=-Wall -Werror -Wshadow -Wconversion -Wpedantic -std=c++17 
+DEBUG_FLAGS+=-g
+OPTIMISATION_FLAGS+=-O3
+SPECIFIC_FLAGS+=$(DEBUG_FLAG)
+SRC=src
+OBJ=obj
+OBJS+=$(patsubst $(SRC)/%.cpp, $(OBJ)/%.o, $(SRCS))
+SRCS+=$(wildcard $(SRC)/*.cpp)
+# test dir -> T_D
+T_D=test
+
+all:$(OBJ) $(BINDIR) $(BIN)
+ifeq ($(TEST), yes)
+all:run
+endif
+
+release: SPECIFIC_FLAGS+=$(OPTIMISATION_FLAGS)
+release: all
+# o -> just objects files
+o: $(OBJS)
+t: o
+	$(MAKE) -C $(T_D)
+clean:
+	$(RM) -r $(OBJ)/* $(BIN) $(BIN).dSYM
+ifneq ($(TEST), yes)
+	$(MAKE) clean -C $(T_D)
+endif
+
+$(BIN): $(OBJS)
+	$(CPPC) $(COMMON_FLAGS) $(SPECIFIC_FLAGS) $^ $(MAIN_PATH) -o $@ 
+$(OBJ)/%.o: $(SRC)/%.cpp
+	$(CPPC) $(COMMON_FLAGS) $(SPECIFIC_FLAGS) -c $< -o $@
+
+ifneq (clean, $(MAKECMDGOALS))
+-include deps.mk
+endif
+
+deps.mk: $(SRCS)
+	$(CPPC) -MM -std=c++17 $^ > $@
+
+$(OBJ):
+	mkdir -p $@
+$(BINDIR):
+	mkdir -p $@

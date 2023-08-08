@@ -7,7 +7,7 @@
 class FilerTest : public ::testing::Test{
 protected:
     const char* Argv[5]{0, "PluginDirectory", 
-    "../plugins/bin", "PluginsExtension", ".so"};
+    "../bin/plgbin", "PluginsExtension", ".so"};
     std::unique_ptr<Filer> filer;
     void SetUp()override
     {
